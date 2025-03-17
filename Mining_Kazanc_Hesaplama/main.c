@@ -1,10 +1,11 @@
 #include <stdio.h>
 
-void kazancHesapla(float hashOrani, float gucTuketimi, float elektrikMaliyeti, float blokOdulu, float zorlukSeviyesi, float btcUsdFiyati);
+void kazancHesapla(float hashOrani, float gucTuketimi, float elektrikMaliyeti, float blokOdulu, float zorlukSeviyesi, float btcUsdFiyati,int madencilikSuresi);
 
 int main() {
 
     float hashOrani, gucTuketimi, elektrikMaliyeti, blokOdulu, zorlukSeviyesi, btcUsdFiyati;
+    int madencilikSuresi;
 
     printf("Hash oranini (TH/s) girin: ");
     scanf("%f", &hashOrani);
@@ -24,12 +25,14 @@ int main() {
     printf("BTC'nin USD karsiligini girin: ");
     scanf("%f", &btcUsdFiyati);
 
-    kazancHesapla(hashOrani, gucTuketimi, elektrikMaliyeti, blokOdulu, zorlukSeviyesi, btcUsdFiyati);
+    printf("Madencilik yapilacak sureyi (gun olarak) giriniz: \n");
+    scanf("%d", &madencilikSuresi);
 
+kazancHesapla(hashOrani, gucTuketimi, elektrikMaliyeti, blokOdulu, zorlukSeviyesi, btcUsdFiyati, madencilikSuresi);
     return 0;
 }
 
-void kazancHesapla(float hashOrani, float gucTuketimi, float elektrikMaliyeti, float blokOdulu, float zorlukSeviyesi, float btcUsdFiyati) {
+void kazancHesapla(float hashOrani, float gucTuketimi, float elektrikMaliyeti, float blokOdulu, float zorlukSeviyesi, float btcUsdFiyati,int madencilikSuresi) {
 
     float kazanc, gunlukElektrikMaliyeti;
 
@@ -38,10 +41,26 @@ void kazancHesapla(float hashOrani, float gucTuketimi, float elektrikMaliyeti, f
 
     kazanc = (hashOrani * blokOdulu) / zorlukSeviyesi;
 
-    // G�nl�k net kazan�
+
+    // G�nl�k net kazan�
     float netKazanc = kazanc - gunlukElektrikMaliyeti;
+
+    //Aylık olarak kazancı (30 gün)
+    float aylikKazanc = netKazanc * 30;
+
+    // Aylık elektrik maliyetini hesaplama
+    float aylikElektrikMaliyeti = gunlukElektrikMaliyeti * 30;
+
+     // Aylık net kazanç
+    float aylikNetKazanc = aylikKazanc - aylikElektrikMaliyeti;
 
     printf("Gunluk Kazanc: %.8f BTC\n", kazanc);
     printf("Gunluk Elektrik Maliyeti: %.8f BTC\n", gunlukElektrikMaliyeti);
     printf("Gunluk Net Kazanc: %.8f BTC\n", netKazanc);
+    printf("\n");
+    printf("Madencilik Yapilacak Sure: %d gun\n", madencilikSuresi);
+    printf("Madencilik Sureli Aylik Kazanc: %.8f BTC\n", aylikKazanc);
+    printf("Madencilik Sureli Aylik Elektrik Maliyeti: %.8f BTC\n", aylikElektrikMaliyeti);
+    printf("Madencilik Sureli Aylik Net Kazanc: %.8f BTC\n", aylikNetKazanc);
+
 }
