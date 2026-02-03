@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madenci Kazanç Hesaplayıcı</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #f3f4f6; /* Çok açık gri arka plan */
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Üstteki Canlı Fiyat Çubuğu */
+        .live-ticker {
+            background: #ffffff;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-weight: 500;
+            color: #555;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        /* Kart Tasarımları */
+        .card {
+            background-color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Hafif gölge */
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px); /* Üzerine gelince hafif kalkar */
+        }
+
+        .card-header-custom {
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Form Elemanları */
+        .form-label {
+            font-weight: 500;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .form-control:focus {
+            background-color: #fff;
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        /* Hesapla Butonu */
+        .btn-calc {
+            background-color: #3498db; /* Mavi Kurumsal Renk */
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s;
+        }
+        
+        .btn-calc:hover {
+            background-color: #2980b9;
+            color: white;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Sonuç Kutusu */
+        .result-container {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .profit-box {
+            background-color: #d1e7dd; /* Açık Yeşil */
+            color: #0f5132;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .loss-box {
+            background-color: #f8d7da; /* Açık Kırmızı */
+            color: #842029;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="live-ticker text-center d-flex justify-content-center align-items-center">
+    <div class="mx-4">
+        <i class="fab fa-bitcoin text-warning me-2"></i> 
+        BTC: <span class="text-dark fw-bold">${{ fiyatlar.btc }}</span>
+    </div>
+    <div class="mx-4 border-start ps-4">
+        <i class="fab fa-ethereum text-primary me-2"></i> 
+        ETH: <span class="text-dark fw-bold">${{ fiyatlar.eth }}</span>
+    </div>
+</div>
+
+<div class="container mt-5 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold text-secondary">Madencilik Kâr Hesaplama</h2>
+            <p class="text-muted">Anlık piyasa verileriyle yatırım dönüşünü (ROI) hesaplayın.</p>
+        </div>
+
+        <div class="col-lg-5 col-md-6 mb-4">
+            <div class="card h-100 p-4">
+                <div class="card-header-custom">
+                    <i class="fas fa-sliders-h me-2"></i> Parametreler
+                </div>
+                <form method="POST">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label">Hashrate (MH/s)</label>
+                            <input type="number" step="any" name="hashrate" class="form-control" placeholder="Örn: 100" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Güç (Watt)</label>
+                            <input type="number" step="any" name="power" class="form-control" placeholder="Örn: 1500" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Elektrik ($/kWh)</label>
+                            <input type="number" step="any" name="cost" class="form-control" value="0.10" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Havuz Kesintisi (%)</label>
+                            <input type="number" step="any" name="pool_fee" class="form-control" value="1.0" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-primary">Günlük Coin Kazancı (Tahmini)</label>
+                            <input type="number" step="any" name="daily_reward" class="form-control border-primary" placeholder="Örn: 0.0045" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Hesaplanacak Coin Fiyatı ($)</label>
+                            <input type="number" step="any" name="coin_price" class="form-control" value="{{ fiyatlar.eth }}" required>
+                            <div class="form-text">Otomatik gelen fiyatı manuel değiştirebilirsiniz.</div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-calc w-100 mt-4">
+                        <i class="fas fa-calculator me-2"></i> HESAPLA
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-5 col-md-6 mb-4">
+            <div class="card h-100 p-4">
+                <div class="card-header-custom">
+                    <i class="fas fa-chart-line me-2"></i> Analiz Sonucu
+                </div>
+                
+                {% if sonuc %}
+                    <div class="d-flex flex-column justify-content-center h-100">
+                        
+                        <div class="{{ 'profit-box' if sonuc.gunluk_net > 0 else 'loss-box' }}">
+                            <h6 class="mb-1">GÜNLÜK NET KÂR</h6>
+                            <h1 class="display-5 fw-bold mb-0">${{ sonuc.gunluk_net }}</h1>
+                            <small>Elektrik Gideri: ${{ sonuc.elektrik_maliyeti }}</small>
+                        </div>
+
+                        <div class="row g-3 mt-2">
+                            <div class="col-6">
+                                <div class="result-container">
+                                    <div class="stat-label">Aylık Tahmin</div>
+                                    <div class="stat-value {{ 'text-success' if sonuc.aylik_net > 0 else 'text-danger' }}">
+                                        ${{ sonuc.aylik_net }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="result-container">
+                                    <div class="stat-label">Yıllık Tahmin</div>
+                                    <div class="stat-value {{ 'text-success' if sonuc.yillik_net > 0 else 'text-danger' }}">
+                                        ${{ sonuc.yillik_net }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center text-muted" style="font-size: 0.8rem;">
+                            * Hesaplamalar anlık zorluk ve fiyat değişimlerini içermez.
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted d-flex flex-column justify-content-center h-100">
+                        <i class="fas fa-coins fa-4x mb-3" style="color: #e0e0e0;"></i>
+                        <p>Lütfen soldaki formu doldurup<br><strong>HESAPLA</strong> butonuna basın.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
