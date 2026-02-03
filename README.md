@@ -1,8 +1,8 @@
-# CryptoMiner Pro V3 (Web Edition)
+# SERT Miner
 
 Eski konsol tabanlı madencilik hesaplayıcısının, modern web teknolojileri ve canlı veri entegrasyonu ile yeniden doğmuş profesyonel versiyonudur. Yatırımcılar için **ROI (Amorti)** analizi ve detaylı grafikler sunar.
 
-## Yenilikler (V3)
+## İçerik
 * **Web Arayüzü:** Python Flask ve Bootstrap 5 ile modern, ferah (Light Mode) tasarım.
 * **Canlı Veri:** CoinGecko API entegrasyonu ile BTC, ETH, RVN, DOGE gibi popüler coinlerin anlık fiyat takibi.
 * **Gelişmiş Analiz:**
